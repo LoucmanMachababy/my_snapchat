@@ -28,6 +28,16 @@ const Login = () => {
     }
   };
 
+  //   const handleSnapLogin = () => {
+  //     const clientId = "";
+  //     const redirectUri = "http://localhost:3000/callback";
+  //     const scope = "user.display_name user.bitmoji.avatar";
+  //     const authUrl = `https://accounts.snapchat.com/login/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
+  //       redirectUri
+  //     )}&response_type=code&scope=${encodeURIComponent(scope)}`;
+  //     window.location.href = authUrl;
+  //   };
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
