@@ -4,8 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './Login';
 import RegisterScreen from './Register';
 import HomeScreen from './Home';
-import { AuthProvider, AuthContext } from './Auth';
 import SplashScreen from './SplashScreen';
+import { AuthProvider, AuthContext } from './Auth';
 
 const Stack = createNativeStackNavigator();
 
@@ -14,14 +14,20 @@ const AppNavigator = () => {
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="Splash" component={SplashScreen} /> 
-      <Stack.Screen name="Home" component={HomeScreen} />
+      {!userToken ? (
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+        </>
+      ) : (
+        <>
+          <Stack.Screen name="Splash" component={SplashScreen} />
+          <Stack.Screen name="Home" component={HomeScreen} />
+        </>
+      )}
     </Stack.Navigator>
   );
 };
-
 
 const App = () => {
   return (
