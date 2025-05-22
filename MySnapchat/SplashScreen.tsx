@@ -11,12 +11,12 @@ const SplashScreen = () => {
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
       <Image
-        source={require('../assets/snapchat.png')}
+        source={require('./assets/snapchat.png')}
         style={styles.logo}
         resizeMode="contain"
       />
