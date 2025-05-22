@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { AuthContext } from './Auth';
 
@@ -42,22 +42,20 @@ const RegisterScreen = ({ navigation }: any) => {
         }
       );
 
-      console.log('✅ Réponse API complète :', response.data);
+      console.log('Réponse API:', response.data);
 
       if (response.data.token) {
         login(response.data.token);
         navigation.replace('Splash');
       } else {
-        // ✅ Inscription OK même sans token, on redirige vers Login
-        Alert.alert("Succès", "Inscription réussie, connecte-toi !");
-        navigation.navigate('Login');
+        setError('Inscription échouée : token manquant');
       }
     } catch (err: any) {
       if (axios.isAxiosError(err)) {
-        console.log('❌ Erreur API :', err.response?.data);
-        setError(err.response?.data?.data || 'Erreur lors de l\'inscription');
+        console.log('Erreur API:', err.response?.data);
+        setError(err.response?.data?.message || "Erreur lors de l'inscription");
       } else {
-        console.error('❌ Erreur inconnue :', err);
+        console.error('Erreur inconnue:', err);
         setError("Une erreur inattendue s'est produite");
       }
     }
@@ -88,17 +86,57 @@ const RegisterScreen = ({ navigation }: any) => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="S'inscrire" onPress={handleRegister} />
-      <Button title="Déjà inscrit ? Se connecter" onPress={() => navigation.navigate('Login')} />
+      <TouchableOpacity style={styles.button} onPress={handleRegister}>
+        <Text style={styles.buttonText}>S'inscrire</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
+        <Text style={styles.buttonText}>Déjà inscrit ? Se connecter</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
-  header: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
-  input: { height: 40, borderColor: '#ccc', borderWidth: 1, marginBottom: 15, paddingHorizontal: 10 },
-  error: { color: 'red', textAlign: 'center', marginBottom: 10 },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#fff200',
+    paddingHorizontal: 20,
+  },
+  header: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#000',
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  input: {
+    height: 50,
+    backgroundColor: '#fff',
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    marginBottom: 15,
+    borderColor: '#000',
+    borderWidth: 1,
+  },
+  error: {
+    color: 'red',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  button: {
+    marginTop: 10,
+    backgroundColor: '#000',
+    borderRadius: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff200',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
 });
 
 export default RegisterScreen;

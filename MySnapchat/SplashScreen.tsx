@@ -1,3 +1,4 @@
+// SplashScreen.tsx
 import React, { useEffect } from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -7,7 +8,7 @@ const SplashScreen = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace('Home'); 
+      navigation.replace('Home');
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -15,11 +16,7 @@ const SplashScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require('./assets/snapchat.png')}
-        style={styles.logo}
-        resizeMode="contain"
-      />
+      <Image source={require('./assets/snapchat.png')} style={styles.logo} resizeMode="contain" />
     </View>
   );
 };
@@ -27,7 +24,7 @@ const SplashScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFC00', 
+    backgroundColor: '#FFFC00',
     justifyContent: 'center',
     alignItems: 'center',
   },
