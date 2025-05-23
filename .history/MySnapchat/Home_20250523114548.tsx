@@ -1,51 +1,44 @@
 import React, { useState, useRef, useContext, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, StatusBar } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet from '@gorhom/bottom-sheet';
 import { AuthContext } from './Auth';
 
 const HomeScreen = () => {
   const { logout } = useContext(AuthContext);
   const [image, setImage] = useState<string | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['25%'], []);
 
   const handleCloseSheet = useCallback(() => {
     bottomSheetRef.current?.close();
   }, []);
 
-  const takePhotoFromCamera = async () => {
-    try {
-      const result = await ImagePicker.openCamera({
-        compressImageMaxWidth: 300,
-        compressImageMaxHeight: 300,
-        cropping: true,
-        compressImageQuality: 0.7,
-      });
-      setImage(result.path);
+  const takePhotoFromCamera = () => {
+    ImagePicker.openCamera({
+      compressImageMaxWidth: 300,
+      compressImageMaxHeight: 300,
+      cropping: true,
+      compressImageQuality: 0.7,
+    }).then((image) => {
+      setImage(image.path);
       handleCloseSheet();
-    } catch (error) {
-      console.log('Camera cancelled or failed:', error);
-    }
+    });
   };
 
-  const choosePhotoFromLibrary = async () => {
-    try {
-      const result = await ImagePicker.openPicker({
-        width: 300,
-        height: 300,
-        cropping: true,
-        compressImageQuality: 0.7,
-      });
-      setImage(result.path);
+  const choosePhotoFromLibrary = () => {
+    ImagePicker.openPicker({
+      width: 300,
+      height: 300,
+      cropping: true,
+      compressImageQuality: 0.7,
+    }).then((image) => {
+      setImage(image.path);
       handleCloseSheet();
-    } catch (error) {
-      console.log('Gallery cancelled or failed:', error);
-    }
+    });
   };
 
   const renderBottomSheetContent = () => (
-    <BottomSheetView style={styles.panel}>
+    <View style={styles.panel}>
       <Text style={styles.panelTitle}>Choisissez une image</Text>
       <TouchableOpacity style={styles.panelButton} onPress={takePhotoFromCamera}>
         <Text style={styles.panelButtonText}>Prendre une photo</Text>
@@ -56,7 +49,7 @@ const HomeScreen = () => {
       <TouchableOpacity style={styles.cancelButton} onPress={handleCloseSheet}>
         <Text style={styles.cancelButtonText}>Annuler</Text>
       </TouchableOpacity>
-    </BottomSheetView>
+    </View>
   );
 
   return (
@@ -66,24 +59,18 @@ const HomeScreen = () => {
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
-        snapPoints={snapPoints}
         enablePanDownToClose
-        backgroundStyle={{ backgroundColor: '#fff' }}
       >
         {renderBottomSheetContent()}
       </BottomSheet>
 
       <Text style={styles.title}>👻 MySnapchat</Text>
 
-      {image && <Image source={{ uri: image }} style={styles.previewImage} />}
+      {image && (
+        <Image source={{ uri: image }} style={styles.previewImage} />
+      )}
 
-      <TouchableOpacity
-        style={styles.snapButton}
-        onPress={() => {
-          console.log('👆 Bouton appuyé');
-          bottomSheetRef.current?.expand();
-        }}
-      >
+      <TouchableOpacity style={styles.snapButton} onPress={() => bottomSheetRef.current?.expand()}>
         <Text style={styles.snapButtonText}>Ajouter une image</Text>
       </TouchableOpacity>
 
@@ -96,7 +83,7 @@ const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', padding: 20 },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#000', marginBottom: 30 },
+  title: { fontSize: 28, fontWeight: 'bold', color: '#00', marginBottom: 30 },
 
   snapButton: {
     backgroundColor: '#FFFC00',
@@ -118,6 +105,7 @@ const styles = StyleSheet.create({
   logoutText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 
   panel: {
+    flex: 1,
     backgroundColor: '#fff',
     padding: 20,
     alignItems: 'center',

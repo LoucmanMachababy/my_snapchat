@@ -27,7 +27,8 @@
     "react-native-svg": "^15.12.0",
     "react-native-svg-transformer": "^1.5.1",
     "react-router-dom": "^7.6.0",
-    "react-test-renderer": "19.0.0"
+    "react-test-renderer": "19.0.0",
+    "reanimated-bottom-sheet": "^1.0.0-alpha.22"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

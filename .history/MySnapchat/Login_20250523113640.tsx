@@ -40,11 +40,12 @@ const LoginScreen = ({ navigation }: any) => {
       const token = response.data.data?.token;
       if (token) {
         login(token);
+        navigation.replace('Splash');
       } else {
         setError('Connexion échouée : token manquant');
       }
     } catch (err: any) {
-      console.error('Erreur API :', err.response?.data || err.message);
+      console.error('❌ Erreur API :', err.response?.data || err.message);
       if (axios.isAxiosError(err)) {
         setError(err.response?.data?.data || 'Email ou mot de passe incorrect');
       } else {

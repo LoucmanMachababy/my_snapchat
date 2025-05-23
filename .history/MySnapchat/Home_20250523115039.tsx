@@ -1,7 +1,7 @@
 import React, { useState, useRef, useContext, useMemo, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, StatusBar, Alert } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet from '@gorhom/bottom-sheet';
 import { AuthContext } from './Auth';
 
 const HomeScreen = () => {
@@ -45,7 +45,7 @@ const HomeScreen = () => {
   };
 
   const renderBottomSheetContent = () => (
-    <BottomSheetView style={styles.panel}>
+    <View style={styles.panel}>
       <Text style={styles.panelTitle}>Choisissez une image</Text>
       <TouchableOpacity style={styles.panelButton} onPress={takePhotoFromCamera}>
         <Text style={styles.panelButtonText}>Prendre une photo</Text>
@@ -56,7 +56,7 @@ const HomeScreen = () => {
       <TouchableOpacity style={styles.cancelButton} onPress={handleCloseSheet}>
         <Text style={styles.cancelButtonText}>Annuler</Text>
       </TouchableOpacity>
-    </BottomSheetView>
+    </View>
   );
 
   return (
@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
   logoutText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 
   panel: {
+    flex: 1,
     backgroundColor: '#fff',
     padding: 20,
     alignItems: 'center',
