@@ -6,8 +6,8 @@ import { AuthContext } from './Auth';
 
 const HomeScreen = () => {
   const { logout } = useContext(AuthContext);
-  const [image, setImage] = useState<string | null>(null);
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const [image, setImage] = useState(null);
+  const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ['25%', '0%'], []);
 
   const handleCloseSheet = useCallback(() => {
@@ -42,13 +42,13 @@ const HomeScreen = () => {
     <View style={styles.panel}>
       <Text style={styles.panelTitle}>Choisissez une image</Text>
       <TouchableOpacity style={styles.panelButton} onPress={takePhotoFromCamera}>
-        <Text style={styles.panelButtonText}>Prendre une photo</Text>
+        <Text style={styles.panelButtonText}>📷 Prendre une photo</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.panelButton} onPress={choosePhotoFromLibrary}>
-        <Text style={styles.panelButtonText}>Galerie</Text>
+        <Text style={styles.panelButtonText}>🖼️ Galerie</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.cancelButton} onPress={handleCloseSheet}>
-        <Text style={styles.cancelButtonText}>Annuler</Text>
+        <Text style={styles.cancelButtonText}>❌ Annuler</Text>
       </TouchableOpacity>
     </View>
   );
@@ -73,7 +73,7 @@ const HomeScreen = () => {
       )}
 
       <TouchableOpacity style={styles.snapButton} onPress={() => bottomSheetRef.current?.expand()}>
-        <Text style={styles.snapButtonText}>Ajouter une image</Text>
+        <Text style={styles.snapButtonText}>📸 Ajouter une image</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.logoutButton} onPress={logout}>

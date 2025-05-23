@@ -73,7 +73,7 @@ const HomeScreen = () => {
       )}
 
       <TouchableOpacity style={styles.snapButton} onPress={() => bottomSheetRef.current?.expand()}>
-        <Text style={styles.snapButtonText}>Ajouter une image</Text>
+        <Text style={styles.snapButtonText}>📸 Ajouter une image</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.logoutButton} onPress={logout}>

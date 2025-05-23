@@ -48,7 +48,7 @@ const HomeScreen = () => {
         <Text style={styles.panelButtonText}>Galerie</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.cancelButton} onPress={handleCloseSheet}>
-        <Text style={styles.cancelButtonText}>Annuler</Text>
+        <Text style={styles.cancelButtonText}>❌ Annuler</Text>
       </TouchableOpacity>
     </View>
   );
@@ -73,7 +73,7 @@ const HomeScreen = () => {
       )}
 
       <TouchableOpacity style={styles.snapButton} onPress={() => bottomSheetRef.current?.expand()}>
-        <Text style={styles.snapButtonText}>Ajouter une image</Text>
+        <Text style={styles.snapButtonText}>📸 Ajouter une image</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.logoutButton} onPress={logout}>
