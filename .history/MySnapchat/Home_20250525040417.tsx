@@ -9,7 +9,6 @@ import {
   TextInput,
   FlatList,
   Alert,
-  Platform,
 } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
@@ -69,14 +68,13 @@ const HomeScreen = () => {
 
   const takePhotoFromCamera = async () => {
     try {
-      const result: any = await ImagePicker.openCamera({
+      const result = await ImagePicker.openCamera({
         compressImageMaxWidth: 300,
         compressImageMaxHeight: 300,
         cropping: true,
         compressImageQuality: 0.7,
-        includeBase64: true,
       });
-      setImage(`data:${result.mime};base64,${result.data}`);
+      setImage(result.path);
       handleCloseSheet();
       await fetchUsers();
       setShowSendPanel(true);
@@ -87,14 +85,13 @@ const HomeScreen = () => {
 
   const choosePhotoFromLibrary = async () => {
     try {
-      const result: any = await ImagePicker.openPicker({
+      const result = await ImagePicker.openPicker({
         width: 300,
         height: 300,
         cropping: true,
         compressImageQuality: 0.7,
-        includeBase64: true,
       });
-      setImage(`data:${result.mime};base64,${result.data}`);
+      setImage(result.path);
       handleCloseSheet();
       await fetchUsers();
       setShowSendPanel(true);
@@ -104,49 +101,48 @@ const HomeScreen = () => {
   };
 
   const sendSnap = async () => {
-    if (!selectedUser || !duration) {
-      Alert.alert('Erreur', 'Veuillez choisir un destinataire et une durée.');
-      return;
-    }
+  if (!selectedUser || !duration) {
+    Alert.alert('Erreur', 'Veuillez choisir un destinataire et une durée.');
+    return;
+  }
 
-    const durationValue = parseInt(duration, 10);
+  const durationValue = parseInt(duration, 10);
 
   if (isNaN(durationValue)) {
     Alert.alert('Erreur', 'La durée doit être un nombre valide.');
     return;
   }
 
-  if (!image) {
-    Alert.alert('Erreur', 'Aucune image sélectionnée.');
-    return;
+  const formData = new FormData();
+  formData.append('to', selectedUser);
+  formData.append('duration', durationValue);
+  formData.append('image', {
+    uri: image,
+    type: 'image/jpeg',
+    name: 'snap.jpg',
+  });
+
+  console.log('Envoi du snap avec :', { to: selectedUser, duration: durationValue, image });
+
+  try {
+    await axios.post('https://snapchat.epihub.eu/snap', formData, {
+      headers: {
+        'x-api-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNhZml5YS5qYXpvdWxpQGVwaXRlY2guZXUiLCJpYXQiOjE3NDc4NzY3NDV9.4s1OhJYNpvUQY0RhXwyahoIUZ0nmjPQZ0rSpv_BeyTc',
+        Authorization: `Bearer ${userToken}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    Alert.alert('Succès', 'Snap envoyé !');
+    setImage(null);
+    setSelectedUser(null);
+    setDuration('');
+    setShowSendPanel(false);
+  } catch (err) {
+    console.error('Erreur envoi :', err.response?.data || err);
+    Alert.alert('Erreur', "L'envoi du snap a échoué.");
   }
+};
 
-    const payload = {
-      to: selectedUser,
-      image: image, 
-      duration: durationValue,
-    };
-
-    console.log('Envoi du snap avec :', { to: selectedUser, duration: durationValue, image });
-
-    try {
-      await axios.post('https://snapchat.epihub.eu/snap', payload, {
-        headers: {
-          'x-api-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNhZml5YS5qYXpvdWxpQGVwaXRlY2guZXUiLCJpYXQiOjE3NDc4NzY3NDV9.4s1OhJYNpvUQY0RhXwyahoIUZ0nmjPQZ0rSpv_BeyTc',
-          Authorization: `Bearer ${userToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      Alert.alert('Succès', 'Snap envoyé !');
-      setImage(null);
-      setSelectedUser(null);
-      setDuration('');
-      setShowSendPanel(false);
-    } catch (err) {
-      console.error('Erreur envoi :', err);
-      Alert.alert('Erreur', "L'envoi du snap a échoué.");
-    }
-  };
 
   const renderBottomSheetContent = () => (
     <BottomSheetView style={styles.panel}>

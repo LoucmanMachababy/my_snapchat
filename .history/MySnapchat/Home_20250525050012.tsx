@@ -121,6 +121,13 @@ const HomeScreen = () => {
     return;
   }
 
+  const fixedUri =
+  Platform.OS === 'ios' && !image.startsWith('file://')
+    ? `file://${image}`
+    : image;
+
+    console.log("URI envoyée :", fixedUri);
+
     const payload = {
       to: selectedUser,
       image: image, 

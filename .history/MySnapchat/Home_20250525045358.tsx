@@ -9,7 +9,6 @@ import {
   TextInput,
   FlatList,
   Alert,
-  Platform,
 } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
@@ -56,7 +55,7 @@ const HomeScreen = () => {
     try {
       const res = await axios.get('https://snapchat.epihub.eu/user', {
         headers: {
-          'x-api-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNhZml5YS5qYXpvdWxpQGVwaXRlY2guZXUiLCJpYXQiOjE3NDc4NzY3NDV9.4s1OhJYNpvUQY0RhXwyahoIUZ0nmjPQZ0rSpv_BeyTc',
+          'x-api-key': 'eyJlbWFpbCI6InNhZml5YS5qYXpvdWxpQGVwaXRlY2guZXUiLCJpYXQiOjE3NDc4NzY3NDV9.4s1OhJYNpvUQY0RhXwyahoIUZ0nmjPQZ0rSpv_BeyTc',
           Authorization: `Bearer ${userToken}`,
         },
       });
@@ -69,7 +68,7 @@ const HomeScreen = () => {
 
   const takePhotoFromCamera = async () => {
     try {
-      const result: any = await ImagePicker.openCamera({
+      const result = await ImagePicker.openCamera({
         compressImageMaxWidth: 300,
         compressImageMaxHeight: 300,
         cropping: true,
@@ -87,7 +86,7 @@ const HomeScreen = () => {
 
   const choosePhotoFromLibrary = async () => {
     try {
-      const result: any = await ImagePicker.openPicker({
+      const result = await ImagePicker.openPicker({
         width: 300,
         height: 300,
         cropping: true,
@@ -110,29 +109,28 @@ const HomeScreen = () => {
     }
 
     const durationValue = parseInt(duration, 10);
+    if (isNaN(durationValue)) {
+      Alert.alert('Erreur', 'La durée doit être un nombre valide.');
+      return;
+    }
 
-  if (isNaN(durationValue)) {
-    Alert.alert('Erreur', 'La durée doit être un nombre valide.');
-    return;
-  }
-
-  if (!image) {
-    Alert.alert('Erreur', 'Aucune image sélectionnée.');
-    return;
-  }
+    if (!image) {
+      Alert.alert('Erreur', 'Aucune image sélectionnée.');
+      return;
+    }
 
     const payload = {
       to: selectedUser,
-      image: image, 
       duration: durationValue,
+      image: image, // base64
     };
 
-    console.log('Envoi du snap avec :', { to: selectedUser, duration: durationValue, image });
+    console.log('Payload à envoyer :', payload);
 
     try {
       await axios.post('https://snapchat.epihub.eu/snap', payload, {
         headers: {
-          'x-api-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNhZml5YS5qYXpvdWxpQGVwaXRlY2guZXUiLCJpYXQiOjE3NDc4NzY3NDV9.4s1OhJYNpvUQY0RhXwyahoIUZ0nmjPQZ0rSpv_BeyTc',
+          'x-api-key': '',
           Authorization: `Bearer ${userToken}`,
           'Content-Type': 'application/json',
         },
@@ -228,7 +226,7 @@ const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', padding: 20 },
-sessionExpired: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
+  sessionExpired: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
   title: { fontSize: 28, fontWeight: 'bold', color: '#000', marginBottom: 30 },
   snapButton: {
     backgroundColor: '#FFFC00',

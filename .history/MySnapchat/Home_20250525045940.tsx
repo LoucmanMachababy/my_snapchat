@@ -121,16 +121,23 @@ const HomeScreen = () => {
     return;
   }
 
+  const fixedUri =
+  Platform.OS === 'ios' && !image.startsWith('file://')
+    ? `file://${image}`
+    : image;
+
+    console.log("URI envoyée :", fixedUri);
+
     const payload = {
       to: selectedUser,
-      image: image, 
+      image: image, // c’est déjà un string base64 de type: "data:image/jpeg;base64,..."
       duration: durationValue,
     };
 
     console.log('Envoi du snap avec :', { to: selectedUser, duration: durationValue, image });
 
     try {
-      await axios.post('https://snapchat.epihub.eu/snap', payload, {
+      await axios.post('https://snapchat.epihub.eu/snap', formData, {
         headers: {
           'x-api-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNhZml5YS5qYXpvdWxpQGVwaXRlY2guZXUiLCJpYXQiOjE3NDc4NzY3NDV9.4s1OhJYNpvUQY0RhXwyahoIUZ0nmjPQZ0rSpv_BeyTc',
           Authorization: `Bearer ${userToken}`,

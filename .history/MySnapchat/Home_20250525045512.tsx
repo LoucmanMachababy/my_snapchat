@@ -69,14 +69,14 @@ const HomeScreen = () => {
 
   const takePhotoFromCamera = async () => {
     try {
-      const result: any = await ImagePicker.openCamera({
+      const result = await ImagePicker.openCamera({
         compressImageMaxWidth: 300,
         compressImageMaxHeight: 300,
         cropping: true,
         compressImageQuality: 0.7,
         includeBase64: true,
       });
-      setImage(`data:${result.mime};base64,${result.data}`);
+      setImage(result.path);
       handleCloseSheet();
       await fetchUsers();
       setShowSendPanel(true);
@@ -87,14 +87,13 @@ const HomeScreen = () => {
 
   const choosePhotoFromLibrary = async () => {
     try {
-      const result: any = await ImagePicker.openPicker({
+      const result = await ImagePicker.openPicker({
         width: 300,
         height: 300,
         cropping: true,
         compressImageQuality: 0.7,
-        includeBase64: true,
       });
-      setImage(`data:${result.mime};base64,${result.data}`);
+      setImage(result.path);
       handleCloseSheet();
       await fetchUsers();
       setShowSendPanel(true);
@@ -121,20 +120,30 @@ const HomeScreen = () => {
     return;
   }
 
-    const payload = {
-      to: selectedUser,
-      image: image, 
-      duration: durationValue,
-    };
+  const fixedUri =
+  Platform.OS === 'ios' && !image.startsWith('file://')
+    ? `file://${image}`
+    : image;
+
+    console.log("URI envoyée :", fixedUri);
+
+    const formData = new FormData();
+    formData.append('to', selectedUser);
+    formData.append('duration', durationValue.toString());
+    formData.append('image', {
+      uri: fixedUri,
+      type: 'image/jpeg',
+      name: 'snap.jpg',
+    } as any );
 
     console.log('Envoi du snap avec :', { to: selectedUser, duration: durationValue, image });
 
     try {
-      await axios.post('https://snapchat.epihub.eu/snap', payload, {
+      await axios.post('https://snapchat.epihub.eu/snap', formData, {
         headers: {
           'x-api-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNhZml5YS5qYXpvdWxpQGVwaXRlY2guZXUiLCJpYXQiOjE3NDc4NzY3NDV9.4s1OhJYNpvUQY0RhXwyahoIUZ0nmjPQZ0rSpv_BeyTc',
           Authorization: `Bearer ${userToken}`,
-          'Content-Type': 'application/json',
+          'Content-Type': undefined,
         },
       });
       Alert.alert('Succès', 'Snap envoyé !');

@@ -9,7 +9,7 @@ import {
   TextInput,
   FlatList,
   Alert,
-  Platform,
+
 } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
@@ -26,7 +26,7 @@ type User = {
 const HomeScreen = () => {
   const { logout, userToken } = useContext(AuthContext);
 
-  const [image, setImage] = useState<string | null>(null);
+  const [image, setImage] = useState<string | null>(null); // 🔥 base64
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [duration, setDuration] = useState('');
@@ -34,29 +34,19 @@ const HomeScreen = () => {
 
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['25%'], []);
-
   const handleCloseSheet = useCallback(() => {
     bottomSheetRef.current?.close();
   }, []);
 
-  if (!userToken) {
-    return (
-      <View style={styles.sessionExpired}>
-        <Text style={{ fontSize: 16, color: '#000' }}>
-          Session expirée. Veuillez vous reconnecter.
-        </Text>
-        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-          <Text style={styles.logoutText}>Se déconnecter</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const fetchUsers = async () => {
     try {
       const res = await axios.get('https://snapchat.epihub.eu/user', {
         headers: {
-          'x-api-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNhZml5YS5qYXpvdWxpQGVwaXRlY2guZXUiLCJpYXQiOjE3NDc4NzY3NDV9.4s1OhJYNpvUQY0RhXwyahoIUZ0nmjPQZ0rSpv_BeyTc',
+          'x-api-key': 'clé_api',
           Authorization: `Bearer ${userToken}`,
         },
       });
@@ -67,14 +57,15 @@ const HomeScreen = () => {
     }
   };
 
+  // 🔥 MODIF
   const takePhotoFromCamera = async () => {
     try {
-      const result: any = await ImagePicker.openCamera({
+      const result = await ImagePicker.openCamera({
         compressImageMaxWidth: 300,
         compressImageMaxHeight: 300,
         cropping: true,
         compressImageQuality: 0.7,
-        includeBase64: true,
+        includeBase64: true, // important
       });
       setImage(`data:${result.mime};base64,${result.data}`);
       handleCloseSheet();
@@ -85,14 +76,15 @@ const HomeScreen = () => {
     }
   };
 
+  // 🔥 MODIF
   const choosePhotoFromLibrary = async () => {
     try {
-      const result: any = await ImagePicker.openPicker({
+      const result = await ImagePicker.openPicker({
         width: 300,
         height: 300,
         cropping: true,
         compressImageQuality: 0.7,
-        includeBase64: true,
+        includeBase64: true, // important
       });
       setImage(`data:${result.mime};base64,${result.data}`);
       handleCloseSheet();
@@ -103,6 +95,7 @@ const HomeScreen = () => {
     }
   };
 
+  // 🔥 MODIF
   const sendSnap = async () => {
     if (!selectedUser || !duration) {
       Alert.alert('Erreur', 'Veuillez choisir un destinataire et une durée.');
@@ -110,29 +103,28 @@ const HomeScreen = () => {
     }
 
     const durationValue = parseInt(duration, 10);
+    if (isNaN(durationValue)) {
+      Alert.alert('Erreur', 'La durée doit être un nombre valide.');
+      return;
+    }
 
-  if (isNaN(durationValue)) {
-    Alert.alert('Erreur', 'La durée doit être un nombre valide.');
-    return;
-  }
+    if (!image) {
+      Alert.alert('Erreur', 'Aucune image sélectionnée.');
+      return;
+    }
 
-  if (!image) {
-    Alert.alert('Erreur', 'Aucune image sélectionnée.');
-    return;
-  }
-
-    const payload = {
+    const snapData = {
       to: selectedUser,
-      image: image, 
       duration: durationValue,
+      image, // base64
     };
 
-    console.log('Envoi du snap avec :', { to: selectedUser, duration: durationValue, image });
+    console.log('Snap envoyé avec :', snapData);
 
     try {
-      await axios.post('https://snapchat.epihub.eu/snap', payload, {
+      await axios.post('https://snapchat.epihub.eu/snap', snapData, {
         headers: {
-          'x-api-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNhZml5YS5qYXpvdWxpQGVwaXRlY2guZXUiLCJpYXQiOjE3NDc4NzY3NDV9.4s1OhJYNpvUQY0RhXwyahoIUZ0nmjPQZ0rSpv_BeyTc',
+          'x-api-key': 'clé_api',
           Authorization: `Bearer ${userToken}`,
           'Content-Type': 'application/json',
         },
@@ -144,24 +136,9 @@ const HomeScreen = () => {
       setShowSendPanel(false);
     } catch (err) {
       console.error('Erreur envoi :', err);
-      Alert.alert('Erreur', "L'envoi du snap a échoué.");
+      Alert.alert("L'envoi du snap a échoué.");
     }
   };
-
-  const renderBottomSheetContent = () => (
-    <BottomSheetView style={styles.panel}>
-      <Text style={styles.panelTitle}>Choisissez une image</Text>
-      <TouchableOpacity style={styles.panelButton} onPress={takePhotoFromCamera}>
-        <Text style={styles.panelButtonText}>Prendre une photo</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.panelButton} onPress={choosePhotoFromLibrary}>
-        <Text style={styles.panelButtonText}>Galerie</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.cancelButton} onPress={handleCloseSheet}>
-        <Text style={styles.cancelButtonText}>Annuler</Text>
-      </TouchableOpacity>
-    </BottomSheetView>
-  );
 
   return (
     <View style={styles.container}>
@@ -173,7 +150,18 @@ const HomeScreen = () => {
         enablePanDownToClose
         backgroundStyle={{ backgroundColor: '#fff' }}
       >
-        {renderBottomSheetContent()}
+        <BottomSheetView style={styles.panel}>
+          <Text style={styles.panelTitle}>Choisissez une image</Text>
+          <TouchableOpacity style={styles.panelButton} onPress={takePhotoFromCamera}>
+            <Text style={styles.panelButtonText}>Prendre une photo</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.panelButton} onPress={choosePhotoFromLibrary}>
+            <Text style={styles.panelButtonText}>Galerie</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.cancelButton} onPress={handleCloseSheet}>
+            <Text style={styles.cancelButtonText}>Annuler</Text>
+          </TouchableOpacity>
+        </BottomSheetView>
       </BottomSheet>
 
       <Text style={styles.title}>👻 MySnapchat</Text>
@@ -226,9 +214,10 @@ const HomeScreen = () => {
   );
 };
 
+// 🎨 Styles identiques à ton code
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', padding: 20 },
-sessionExpired: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
+  sessionExpired: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
   title: { fontSize: 28, fontWeight: 'bold', color: '#000', marginBottom: 30 },
   snapButton: {
     backgroundColor: '#FFFC00',
