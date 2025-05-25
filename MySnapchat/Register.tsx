@@ -1,15 +1,12 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
-import { AuthContext } from './Auth';
 
 const RegisterScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
-
-  const { login } = useContext(AuthContext);
 
   const handleRegister = async () => {
     setError('');
@@ -44,17 +41,15 @@ const RegisterScreen = ({ navigation }: any) => {
 
       console.log('Réponse API:', response.data);
 
-      if (response.data.token) {
-        login(response.data.token);
+      if (response.data._id) {
+        navigation.navigate('Login', { message: 'Inscription réussie, veuillez vous connecter.' });
       } else {
-        setError('Inscription échouée : token manquant');
+        setError('Inscription échouée');
       }
     } catch (err: any) {
       if (axios.isAxiosError(err)) {
-        console.log('Erreur API:', err.response?.data);
         setError(err.response?.data?.message || "Erreur lors de l'inscription");
       } else {
-        console.error('Erreur inconnue:', err);
         setError("Une erreur inattendue s'est produite");
       }
     }
@@ -96,19 +91,8 @@ const RegisterScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#fff200',
-    paddingHorizontal: 20,
-  },
-  header: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#000',
-    textAlign: 'center',
-    marginBottom: 30,
-  },
+  container: { flex: 1, justifyContent: 'center', backgroundColor: 'yellow', paddingHorizontal: 20 },
+  header: { fontSize: 32, fontWeight: 'bold', color: '#000', textAlign: 'center', marginBottom: 30 },
   input: {
     height: 50,
     backgroundColor: '#fff',
@@ -118,24 +102,16 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     borderWidth: 1,
   },
-  error: {
-    color: 'red',
-    textAlign: 'center',
-    marginBottom: 15,
-  },
+  error: { color: 'red', textAlign: 'center', marginBottom: 15 },
   button: {
     marginTop: 10,
     backgroundColor: '#000',
-    borderRadius: 25,
+    borderRadius: 2,
     paddingVertical: 12,
     paddingHorizontal: 20,
     alignItems: 'center',
   },
-  buttonText: {
-    color: '#fff200',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
+  buttonText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
 });
 
 export default RegisterScreen;
