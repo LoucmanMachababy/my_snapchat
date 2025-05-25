@@ -53,10 +53,9 @@ const HomeScreen = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get('https://snapchat.epihub.eu/user', {
+      const res = await axios.get('', {
         headers: {
-          'x-api-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNhZml5YS5qYXpvdWxpQGVwaXRlY2guZXUiLCJpYXQiOjE3NDc4NzY3NDV9.4s1OhJYNpvUQY0RhXwyahoIUZ0nmjPQZ0rSpv_BeyTc',
-          Authorization: `Bearer ${userToken}`,
+          'x-api-key': userToken,
         },
       });
       setUsers(res.data.data);
@@ -118,8 +117,7 @@ const HomeScreen = () => {
     try {
       await axios.post('https://snapchat.epihub.eu/snap', formData, {
         headers: {
-          'x-api-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNhZml5YS5qYXpvdWxpQGVwaXRlY2guZXUiLCJpYXQiOjE3NDc4NzY3NDV9.4s1OhJYNpvUQY0RhXwyahoIUZ0nmjPQZ0rSpv_BeyTc',
-          Authorization: `Bearer ${userToken}`,
+          'x-api-key': userToken,
           'Content-Type': 'multipart/form-data',
         },
       });
