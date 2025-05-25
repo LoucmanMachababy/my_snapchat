@@ -33,11 +33,11 @@ const AppNavigator = () => {
 const App = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
         <NavigationContainer>
+        <AuthProvider>
           <AppNavigator />
+          </AuthProvider>
         </NavigationContainer>
-      </AuthProvider>
     </GestureHandlerRootView>
   );
 };
