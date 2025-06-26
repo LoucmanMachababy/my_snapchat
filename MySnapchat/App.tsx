@@ -6,6 +6,9 @@ import LoginScreen from './Login';
 import RegisterScreen from './Register';
 import HomeScreen from './Home';
 import SplashScreen from './SplashScreen';
+import SendSnap from './SendSnap';
+import ReceivedSnaps from './ReceivedSnaps';
+import SnapView from './SnapView';
 import { AuthProvider, AuthContext } from './Auth';
 
 const Stack = createNativeStackNavigator();
@@ -24,6 +27,9 @@ const AppNavigator = () => {
         <>
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="SendSnap" component={SendSnap} />
+          <Stack.Screen name="ReceivedSnaps" component={ReceivedSnaps} />
+          <Stack.Screen name="SnapView" component={SnapView} />
         </>
       )}
     </Stack.Navigator>
@@ -33,11 +39,11 @@ const AppNavigator = () => {
 const App = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthProvider>
         <NavigationContainer>
-        <AuthProvider>
           <AppNavigator />
-          </AuthProvider>
         </NavigationContainer>
+      </AuthProvider>
     </GestureHandlerRootView>
   );
 };

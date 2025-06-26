@@ -1,20 +1,19 @@
-import React, { useState, useRef, useContext, useMemo, useCallback } from 'react';
+import React, { useState, useContext, useRef, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Image,
-  StatusBar,
   TextInput,
   FlatList,
   Alert,
+  StatusBar,
 } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import axios from 'axios';
 import { AuthContext } from './Auth';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
 
 type User = {
   _id: string;
@@ -23,17 +22,8 @@ type User = {
   profilePicture: string;
 };
 
-type RootStackParamList = {
-  Home: undefined;
-  SendSnap: undefined;
-  ReceivedSnaps: undefined;
-  SnapView: { snapId: string; imageUrl: string; duration: number };
-  // Ajoute d'autres écrans si besoin
-};
-
-const HomeScreen = () => {
-  const { logout, userToken } = useContext(AuthContext);
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+const SendSnapScreen = ({ navigation }: any) => {
+  const { userToken } = useContext(AuthContext);
 
   const [image, setImage] = useState<string | null>(null);
   const [users, setUsers] = useState<User[]>([]);
@@ -48,19 +38,6 @@ const HomeScreen = () => {
     bottomSheetRef.current?.close();
   }, []);
 
-  if (!userToken) {
-    return (
-      <View style={styles.sessionExpired}>
-        <Text style={{ fontSize: 16, color: '#000' }}>
-          Session expirée. Veuillez vous reconnecter.
-        </Text>
-        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-          <Text style={styles.logoutText}>Se déconnecter</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
   const fetchUsers = async () => {
     try {
       const res = await axios.get('https://snapchat.epihub.eu/user', {
@@ -69,6 +46,7 @@ const HomeScreen = () => {
           Authorization: `Bearer ${userToken}`,
         },
       });
+      console.log('Réponse API utilisateurs:', res.data);
       setUsers(res.data.data);
     } catch (err) {
       console.error('Erreur chargement utilisateurs :', err);
@@ -120,23 +98,21 @@ const HomeScreen = () => {
 
     const durationValue = parseInt(duration, 10);
 
-  if (isNaN(durationValue)) {
-    Alert.alert('Erreur', 'La durée doit être un nombre valide.');
-    return;
-  }
+    if (isNaN(durationValue)) {
+      Alert.alert('Erreur', 'La durée doit être un nombre valide.');
+      return;
+    }
 
-  if (!image) {
-    Alert.alert('Erreur', 'Aucune image sélectionnée.');
-    return;
-  }
+    if (!image) {
+      Alert.alert('Erreur', 'Aucune image sélectionnée.');
+      return;
+    }
 
     const payload = {
       to: selectedUser,
-      image: image, 
+      image: image,
       duration: durationValue,
     };
-
-    console.log('Envoi du snap avec :', { to: selectedUser, duration: durationValue, image });
 
     try {
       await axios.post('https://snapchat.epihub.eu/snap', payload, {
@@ -151,6 +127,7 @@ const HomeScreen = () => {
       setSelectedUser(null);
       setDuration('');
       setShowSendPanel(false);
+      navigation.goBack();
     } catch (err) {
       console.error('Erreur envoi :', err);
       Alert.alert('Erreur', "L'envoi du snap a échoué.");
@@ -185,40 +162,40 @@ const HomeScreen = () => {
         {renderBottomSheetContent()}
       </BottomSheet>
 
-      <Text style={styles.title}>👻 MySnapchat</Text>
+      <Text style={styles.title}>Envoyer un Snap</Text>
 
       {image && <Image source={{ uri: image }} style={styles.previewImage} />}
 
       <TouchableOpacity
         style={styles.snapButton}
-        onPress={() => {
-          if (typeof navigation?.navigate === 'function') {
-            navigation.navigate('SendSnap');
-          }
-        }}
+        onPress={() => bottomSheetRef.current?.expand()}
       >
-        <Text style={styles.snapButtonText}>Envoyer un Snap</Text>
+        <Text style={styles.snapButtonText}>Ajouter une image</Text>
       </TouchableOpacity>
 
       {showSendPanel && (
         <View style={{ width: '100%' }}>
           <Text style={{ fontWeight: 'bold', marginBottom: 10 }}>Choisissez un destinataire :</Text>
-          <FlatList
-            data={users}
-            keyExtractor={(item) => item._id}
-            style={{ maxHeight: 200 }}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={[
-                  styles.userItem,
-                  selectedUser === item._id && styles.userSelected,
-                ]}
-                onPress={() => setSelectedUser(item._id)}
-              >
-                <Text>{item.username || item.email}</Text>
-              </TouchableOpacity>
-            )}
-          />
+          {users.length === 0 ? (
+            <Text style={{ color: 'red', marginBottom: 10 }}>Aucun utilisateur disponible.</Text>
+          ) : (
+            <FlatList
+              data={users}
+              keyExtractor={(item) => item._id}
+              style={{ maxHeight: 200 }}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.userItem,
+                    selectedUser === item._id && styles.userSelected,
+                  ]}
+                  onPress={() => setSelectedUser(item._id)}
+                >
+                  <Text>{item.username || item.email}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          )}
           <TextInput
             placeholder="Durée en secondes"
             keyboardType="numeric"
@@ -231,17 +208,12 @@ const HomeScreen = () => {
           </TouchableOpacity>
         </View>
       )}
-
-      <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-        <Text style={styles.logoutText}>Se déconnecter</Text>
-      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', padding: 20 },
-sessionExpired: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
   title: { fontSize: 28, fontWeight: 'bold', color: '#000', marginBottom: 30 },
   snapButton: {
     backgroundColor: '#FFFC00',
@@ -252,15 +224,6 @@ sessionExpired: { flex: 1, justifyContent: 'center', alignItems: 'center', backg
     marginBottom: 15,
   },
   snapButtonText: { color: '#000', fontWeight: 'bold', fontSize: 16 },
-  logoutButton: {
-    backgroundColor: '#000',
-    padding: 15,
-    borderRadius: 30,
-    width: '80%',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  logoutText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   panel: {
     backgroundColor: '#fff',
     padding: 20,
@@ -293,23 +256,22 @@ sessionExpired: { flex: 1, justifyContent: 'center', alignItems: 'center', backg
     backgroundColor: '#FFFC00',
   },
   input: {
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
+    borderWidth: 1,
     borderColor: '#ccc',
+    borderRadius: 8,
     padding: 10,
-    marginVertical: 10,
+    marginBottom: 10,
+    backgroundColor: '#fff',
   },
   sendButton: {
     backgroundColor: '#000',
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 30,
+    width: '100%',
     alignItems: 'center',
-    marginBottom: 20,
+    marginTop: 10,
   },
-  sendButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
+  sendButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });
 
-export default HomeScreen;
+export default SendSnapScreen;
